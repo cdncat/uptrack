@@ -1,0 +1,52 @@
+@import 'fonts'
+
+$white: #F5F5F5
+$green: #C0F7C1
+$pink: #F7BAD2
+$teal: #BDFFF3
+$red: #F2937B
+$yellow: #FFEC6A
+
+body
+    font-family: 'Raleway', sans-serif
+    text-align: center
+    background-color: $white
+
+    &.down
+        #content
+            background-color: $red
+        #up-text
+            display: none
+
+    &.up
+        #content
+            background-color: $green
+        #down-text
+            display: none
+
+#content
+    padding: 10%
+    border-radius: 10px
+    display: inline-block
+
+header
+    font-size: 1.2em
+    text-align: right
+    width: 100%
+    padding-right: 10px
+
+footer
+    text-align: left
+
+h1
+    font-family: 'Lato', sans-serif
+
+*:not(input):not(textarea),
+*:not(input):not(textarea)::after,
+*:not(input):not(textarea)::before
+    -webkit-user-select: none
+    user-select: none
+    cursor: default
+
+input, button, textarea, :focus
+    outline: none

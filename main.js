@@ -1,4 +1,4 @@
-const {app, Menu, Tray, BrowserWindow} = require('electron')
+const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
 const upIcon = app.getAppPath() + '/icons/up.png'
 const downIcon = app.getAppPath() + '/icons/down.png'
 
@@ -6,6 +6,9 @@ let isUp = false
 
 let tray
 let window
+let lastUp
+let lastDown
+let sessionId = 0
 
 app.dock.hide()
 
@@ -39,8 +42,8 @@ const showWindow = () => {
 
 const createWindow = () => {
     window = new BrowserWindow({
-        width: 200,
-        height: 200,
+        width: 256,
+        height: 225,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -49,7 +52,7 @@ const createWindow = () => {
             backgroundThrottling: false
         }
     })
-    window.loadFile('index.html')
+    window.loadFile('config.html')
 
     window.on('blur', () => {
         tray.setHighlightMode('never')
@@ -57,11 +60,38 @@ const createWindow = () => {
     })
 }
 
+const startTracking = () => {
+    lastUp = +new Date()
+    sessionId++
+    window.webContents.send('status', {
+        'up': true,
+        'lastUp': lastUp,
+        'lastDown': lastDown,
+        'sessionId': sessionId
+    })
+}
+
+const stopTracking = () => {
+    lastDown = +new Date()
+    window.webContents.send('status', {
+        'up': false,
+        'lastUp': lastUp,
+        'lastDown': lastDown
+    })
+
+}
+
 const toggleTrack = () => {
     if (window.isVisible()) {
         toggleWindow()
     } else {
-        tray.setImage(isUp ? downIcon : upIcon)
+        if (isUp) {
+            stopTracking()
+            tray.setImage(downIcon)
+        } else {
+            startTracking()
+            tray.setImage(upIcon)
+        }
         isUp = !isUp
     }
 }
@@ -76,5 +106,9 @@ app.on('ready', () => {
 })
 
 app.on('window-all-closed', () => {
+    app.quit()
+})
+
+ipcMain.on('close-app', () => {
     app.quit()
 })
