@@ -1,0 +1,14 @@
+{
+  "name": "track",
+  "version": "0.1.0",
+  "description": "Keep track of your time usage",
+  "main": "index.js",
+  "devDependencies": {
+    "electron": "^2.0.8"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Andrei Savin, Cathy Jin",
+  "license": "MIT"
+}
