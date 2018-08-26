@@ -53,11 +53,11 @@ const processes = (cb = () => null) => {
         const total = data.map(x => x.active).reduce((a, b) => a + b, 0)
 
         let colors = [
-            "#333",
-            '#BDFFF3',
-            '#521708',
-            '#F7BAD2',
-            'rgb(47,102,144)'
+            "#B7D2FF",
+            '#ECC1EC',
+            '#FFF1BF',
+            '#CDFFFD',
+            '#C2FFCD'
         ]
         let sum = 0
         const draw = (process, i) => {
