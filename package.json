@@ -10,5 +10,8 @@
     "start": "electron ."
   },
   "author": "Andrei Savin, Cathy Jin",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "current-processes": "^0.2.1"
+  }
 }

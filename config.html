@@ -16,11 +16,15 @@
 
     <div id="down-text">
         <h1>Down Time</h1>
+        <p id="last-session">Last session: <span id="last-session-time"></span></p>
+        <p id="no-sessions">No previous session</p>
     </div>
 </div>
 
 <footer>
-
+    <img id="footer-stat" src="icons/footer-stat.png" alt>
+    <img class="toggle-track" id="footer-up" src="icons/footer-up.png" alt>
+    <img class="toggle-track" id="footer-down" src="icons/footer-down.png" alt>
 </footer>
 
 <script>
@@ -37,10 +41,16 @@
         return [h, min, sec].map((x) => (x < 10 ? "0" : "") + x).join(':')
     }
 
-    const updateTimer = (lastUp) => {
-        const delta = ~~((+new Date() - lastUp) / 1000)
-        document.getElementById('session-time').innerHTML = seconds2hours(delta)
+    const updateTimer = (lastUp, lastDown = +new Date(), target = 'session-time') => {
+        const delta = ~~((lastDown - lastUp) / 1000)
+        document.getElementById(target).innerHTML = seconds2hours(delta)
     }
+
+    [...document.getElementsByClassName('toggle-track')].forEach($el => {
+        $el.addEventListener('click', () => {
+            ipcRenderer.send('toggle-track')
+        })
+    })
 
     ipcRenderer.on('status', (ev, data) => {
         clearInterval(interval)
@@ -54,6 +64,10 @@
                 updateTimer(data.lastUp)
             }, 1000)
         } else {
+            document.getElementById('no-sessions').style.display = "none"
+            document.getElementById('last-session').style.display = "block"
+
+            updateTimer(data.lastUp, data.lastDown, 'last-session-time')
             document.body.className = "down"
         }
     })

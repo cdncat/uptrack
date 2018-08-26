@@ -2,6 +2,8 @@ const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
 const upIcon = app.getAppPath() + '/icons/up.png'
 const downIcon = app.getAppPath() + '/icons/down.png'
 
+const ps = require('current-processes')
+
 let isUp = false
 
 let tray
@@ -43,7 +45,7 @@ const showWindow = () => {
 const createWindow = () => {
     window = new BrowserWindow({
         width: 256,
-        height: 225,
+        height: 200,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -82,26 +84,21 @@ const stopTracking = () => {
 }
 
 const toggleTrack = () => {
-    if (window.isVisible()) {
-        toggleWindow()
+    if (isUp) {
+        stopTracking()
+        tray.setImage(downIcon)
     } else {
-        if (isUp) {
-            stopTracking()
-            tray.setImage(downIcon)
-        } else {
-            startTracking()
-            tray.setImage(upIcon)
-        }
-        isUp = !isUp
+        startTracking()
+        tray.setImage(upIcon)
     }
+    isUp = !isUp
 }
 
 app.on('ready', () => {
     createWindow()
 
     tray = new Tray(downIcon)
-    tray.on('click', toggleTrack)
-    tray.on('double-click', toggleTrack)
+    tray.on('click', toggleWindow)
     tray.on('right-click', toggleWindow)
 })
 
@@ -112,3 +109,5 @@ app.on('window-all-closed', () => {
 ipcMain.on('close-app', () => {
     app.quit()
 })
+
+ipcMain.on('toggle-track', toggleTrack)

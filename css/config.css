@@ -13,36 +13,6 @@
   font-weight: 700;
   src: local("Lato Bold"), local("Lato-Bold"), url(../fonts/lato.woff2) format("woff2");
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-body {
-  font-family: "Raleway", sans-serif;
-  text-align: center;
-  background-color: #F5F5F5; }
-  body.down #content {
-    background-color: #F2937B; }
-  body.down #up-text {
-    display: none; }
-  body.up #content {
-    background-color: #C0F7C1; }
-  body.up #down-text {
-    display: none; }
-
-#content {
-  padding: 10%;
-  border-radius: 10px;
-  display: inline-block; }
-
-header {
-  font-size: 1.2em;
-  text-align: right;
-  width: 100%;
-  padding-right: 10px; }
-
-footer {
-  text-align: left; }
-
-h1 {
-  font-family: "Lato", sans-serif; }
-
 *:not(input):not(textarea),
 *:not(input):not(textarea)::after,
 *:not(input):not(textarea)::before {
@@ -52,5 +22,41 @@ h1 {
 
 input, button, textarea, :focus {
   outline: none; }
+
+body {
+  font-family: "Raleway", sans-serif;
+  text-align: center;
+  background-color: #333333;
+  color: #333333; }
+  body.down #content {
+    background-color: #F2937B; }
+  body.down #up-text, body.down #footer-down {
+    display: none; }
+  body.up #content {
+    background-color: rgba(192, 247, 193, 0.8); }
+  body.up #down-text, body.up #footer-up {
+    display: none; }
+
+#content {
+  margin-top: -7%;
+  padding: 7%;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  display: inline-block; }
+
+#last-session {
+  display: none; }
+
+footer {
+  margin-top: 10px; }
+  footer img {
+    opacity: 0.8;
+    cursor: pointer;
+    transition: 0.4s ease-out; }
+    footer img:hover {
+      opacity: 1; }
+
+h1 {
+  font-family: "Lato", sans-serif; }
 
 /*# sourceMappingURL=config.css.map */
