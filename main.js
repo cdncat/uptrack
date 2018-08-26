@@ -1,6 +1,8 @@
 const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
 const Datastore = require('nedb')
 const ps = require('current-processes')
+const fs = require('fs')
+
 
 const filter_processes = [
     'WindowServer',
@@ -12,6 +14,19 @@ const filter_processes = [
     'Microsoft AutoUpdate',
     'syncdefaultsd',
     'Electron Helper'
+]
+
+const blocked_webistes = [
+    'reddit.com',
+    'youtube.com',
+    'soundcloud.com',
+    'facebook.com',
+    'twitter.com',
+    'quora.com',
+    '9gag.com',
+    'buzzfeed.com',
+    'instagram.com',
+    'vine.co'
 ]
 
 const sessionsDb = new Datastore({
@@ -90,6 +105,9 @@ const createWindow = () => {
 }
 
 const startTracking = () => {
+    fs.copyFileSync('/etc/hosts', '/etc/hosts.old')
+    fs.appendFileSync('/etc/hosts', "\n" + blocked_webistes.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`).join("\n"));
+
     lastUp = +new Date()
     sessionId++
     window.webContents.send('status', {
@@ -101,6 +119,8 @@ const startTracking = () => {
 }
 
 const stopTracking = () => {
+    fs.renameSync('/etc/hosts.old', '/etc/hosts')
+
     lastDown = +new Date()
     sessionsDb.insert({
         up: lastUp,
@@ -167,4 +187,9 @@ ipcMain.on('get-processes', () => {
     processDb.find({}).sort({'active': -1}).limit(5).exec((err, processes) => {
         window.webContents.send('processes', processes)
     })
+})
+
+
+ipcMain.on('get-websites', () => {
+    window.webContents.send('websites', blocked_webistes)
 })
