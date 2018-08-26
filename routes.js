@@ -1,12 +1,12 @@
 const {stats} = require('./routes/stats')
 
-let previousState
+let previousState = []
 
 const routes = {stats}
 
 const changeState = (newState) => {
     const makeChange = () => {
-        previousState = document.body.className
+        previousState.push(document.body.className)
         document.body.className = newState
     }
 
@@ -17,7 +17,7 @@ const changeState = (newState) => {
     }
 }
 const backState = () => {
-    changeState(previousState)
+    changeState(previousState.pop())
 }
 
 module.exports = {changeState, backState}

@@ -44,14 +44,15 @@ body {
     background-color: #F5F5F5; }
     body.stats #content #stats-text {
       display: block; }
-  body.stats footer {
+  body.stats footer, body.stats #header-bars {
     display: none; }
   body.config #content {
     background-color: #BDFFF3; }
     body.config #content #config-text {
       display: block; }
-  body.config footer {
-    display: none; }
+  body.config footer, body.config #header-down, body.config #header-pie, body.config #header-bars {
+    display: none;
+    visibility: hidden; }
   body.down #content {
     background-color: #F2937B; }
     body.down #content #down-text {

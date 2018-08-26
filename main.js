@@ -1,8 +1,26 @@
 const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
 const Datastore = require('nedb')
+const ps = require('current-processes')
+
+const filter_processes = [
+    'WindowServer',
+    'Google Chrome Helper',
+    'updater',
+    'launchd',
+    'hidd',
+    'mds_stores',
+    'Microsoft AutoUpdate',
+    'syncdefaultsd',
+    'Electron Helper'
+]
 
 const sessionsDb = new Datastore({
     filename: app.getAppPath() + '/data/sessions.db',
+    autoload: true
+})
+
+const processDb = new Datastore({
+    filename: app.getAppPath() + '/data/process.db',
     autoload: true
 })
 
@@ -127,7 +145,26 @@ ipcMain.on('close-app', () => {
 ipcMain.on('toggle-track', toggleTrack)
 
 ipcMain.on('get-stats', () => {
-    sessionsDb.find({}).limit(10).sort({'up': -1}).exec((err, sessions) => {
+    sessionsDb.find({}).sort({'up': -1}).limit(10).exec((err, sessions) => {
         window.webContents.send('stats', sessions.map(session => session['down'] - session['up']).reverse())
+    })
+})
+
+ipcMain.on('update-processes', () => {
+    ps.get((err, processes) => {
+        processes
+            .filter(x => !~filter_processes.indexOf(x))
+            .sort((a, b) => b.cpu - a.cpu)
+            .slice(0, 5)
+            .map(x => x.name)
+            .forEach(process => {
+                processDb.update({process}, {$inc: {active: 1}}, {upsert: true})
+            })
+    })
+})
+
+ipcMain.on('get-processes', () => {
+    processDb.find({}).sort({'active': -1}).limit(5).exec((err, processes) => {
+        window.webContents.send('processes', processes)
     })
 })

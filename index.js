@@ -2,6 +2,7 @@ const {ipcRenderer, webFrame} = require('electron')
 const {$, $$, $click, $$click} = require('./lib/$')
 const {seconds2hours} = require('./lib/helpers')
 const {changeState, backState} = require('./routes')
+const {stats, processes} = require('./routes/stats')
 
 webFrame.setVisualZoomLevelLimits(1, 1)
 webFrame.setLayoutZoomLevelLimits(0, 0)
@@ -21,6 +22,9 @@ $$click('go-to', (e) => {
 
 $$click('go-back', backState)
 
+$click('header-bars', stats)
+$click('header-pie', processes)
+
 let interval = 0
 ipcRenderer.on('status', (ev, data) => {
     $$('session-id', $el => {
@@ -35,6 +39,7 @@ ipcRenderer.on('status', (ev, data) => {
         updateTimer(data.lastUp)
         interval = setInterval(() => {
             updateTimer(data.lastUp)
+            ipcRenderer.send('update-processes')
         }, 1000)
     } else {
         $('no-sessions').style.display = "none"
