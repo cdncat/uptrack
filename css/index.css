@@ -41,7 +41,7 @@ body {
   background-color: #333333;
   color: #333333; }
   body.stats #content {
-    background-color: #BDFFF3; }
+    background-color: #F5F5F5; }
     body.stats #content #stats-text {
       display: block; }
   body.stats footer {
@@ -68,12 +68,22 @@ body {
 #last-session {
   display: none; }
 
-header img, footer img {
-  opacity: 0.8;
-  cursor: pointer;
-  transition: 0.4s ease-out; }
-  header img:hover, footer img:hover {
-    opacity: 1; }
+#stats-canvas {
+  width: 200px;
+  height: 100px; }
+
+header, footer {
+  text-align: left; }
+  header span:first-child, footer span:first-child {
+    float: left; }
+  header span:nth-child(2), footer span:nth-child(2) {
+    float: right; }
+  header img, footer img {
+    opacity: 0.8;
+    cursor: pointer;
+    transition: 0.4s ease-out; }
+    header img:hover, footer img:hover {
+      opacity: 1; }
 
 h1 {
   font-family: "Lato", sans-serif; }

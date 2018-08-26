@@ -39,7 +39,7 @@ body
 
     &.stats
         #content
-            background-color: $teal
+            background-color: $white
             #stats-text
                 display: block
         footer
@@ -72,7 +72,19 @@ body
 #last-session
     display: none
 
+#stats-canvas
+    width: 200px
+    height: 100px
+
 header, footer
+    text-align: left
+
+    span
+        &:first-child
+            float: left
+        &:nth-child(2)
+            float: right
+
     img
         opacity: 0.8
         cursor: pointer

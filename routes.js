@@ -1,10 +1,8 @@
+const {stats} = require('./routes/stats')
+
 let previousState
 
-const routes = {
-    'stats': (cb) => {
-        cb()
-    }
-}
+const routes = {stats}
 
 const changeState = (newState) => {
     const makeChange = () => {

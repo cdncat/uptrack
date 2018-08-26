@@ -125,3 +125,9 @@ ipcMain.on('close-app', () => {
 })
 
 ipcMain.on('toggle-track', toggleTrack)
+
+ipcMain.on('get-stats', () => {
+    sessionsDb.find({}).limit(10).sort({'up': -1}).exec((err, sessions) => {
+        window.webContents.send('stats', sessions.map(session => session['down'] - session['up']).reverse())
+    })
+})
