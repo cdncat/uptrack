@@ -1,8 +1,15 @@
 const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
+const Datastore = require('nedb')
+
+const sessionsDb = new Datastore({
+    filename: app.getAppPath() + '/data/sessions.db',
+    autoload: true
+})
+
+
 const upIcon = app.getAppPath() + '/icons/up.png'
 const downIcon = app.getAppPath() + '/icons/down.png'
 
-const ps = require('current-processes')
 
 let isUp = false
 
@@ -45,7 +52,7 @@ const showWindow = () => {
 const createWindow = () => {
     window = new BrowserWindow({
         width: 256,
-        height: 200,
+        height: 215,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -54,7 +61,7 @@ const createWindow = () => {
             backgroundThrottling: false
         }
     })
-    window.loadFile('config.html')
+    window.loadFile('index.html')
 
     window.on('blur', () => {
         tray.setHighlightMode('never')
@@ -75,6 +82,12 @@ const startTracking = () => {
 
 const stopTracking = () => {
     lastDown = +new Date()
+
+    sessionsDb.insert({
+        up: lastUp,
+        down: lastDown
+    })
+
     window.webContents.send('status', {
         'up': false,
         'lastUp': lastUp,

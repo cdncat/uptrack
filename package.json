@@ -12,6 +12,7 @@
   "author": "Andrei Savin, Cathy Jin",
   "license": "MIT",
   "dependencies": {
-    "current-processes": "^0.2.1"
+    "current-processes": "^0.2.1",
+    "nedb": "^1.8.0"
   }
 }
