@@ -7,6 +7,10 @@
 
 <body class="down">
 
+<header>
+    <img class="go-back" id="header-back" src="icons/header-back.png" alt>
+</header>
+
 <div id="content">
     <div id="up-text">
         <h1>Session #<span class="session-id"></span></h1>
@@ -18,13 +22,19 @@
         <p id="last-session">Last session: <span id="last-session-time"></span></p>
         <p id="no-sessions">No previous session</p>
     </div>
+
+    <div id="stats-text"></div>
+
+    <div id="config-text"></div>
 </div>
 
 <footer>
-    <img id="footer-stat" src="icons/footer-stat.png" alt>
+    <img id="footer-stats" class="go-to" data-route="stats" src="icons/footer-stats.png" alt>
+
     <img class="toggle-track" id="footer-up" src="icons/footer-up.png" alt>
     <img class="toggle-track" id="footer-down" src="icons/footer-down.png" alt>
-    <img id="footer-config" src="icons/footer-config.png" alt>
+
+    <img id="footer-config" class="go-to" data-route="config" src="icons/footer-config.png" alt>
 </footer>
 
 <script>

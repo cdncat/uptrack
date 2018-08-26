@@ -18,25 +18,6 @@ $yellow: #FFEC6A
 input, button, textarea, :focus
     outline: none
 
-body
-    padding: 0
-    font-family: 'Raleway', sans-serif
-    text-align: center
-    background-color: $black
-    color: $black
-
-    &.down
-        #content
-            background-color: $red
-        #up-text, #footer-down
-            display: none
-
-    &.up
-        #content
-            background-color: rgba($green, 0.8)
-        #down-text, #footer-up
-            display: none
-
 #content
     margin-top: 2px
     margin-bottom: 9px
@@ -45,10 +26,53 @@ body
     border-radius: 10px
     display: inline-block
 
+    div
+        display: none
+        transition: .2s ease-in-out
+
+body
+    padding: 0
+    font-family: 'Raleway', sans-serif
+    text-align: center
+    background-color: $black
+    color: $black
+
+    &.stats
+        #content
+            background-color: $teal
+            #stats-text
+                display: block
+        footer
+            display: none
+
+    &.config
+        #content
+            background-color: $teal
+            #config-text
+                display: block
+        footer
+            display: none
+
+    &.down
+        #content
+            background-color: $red
+            #down-text
+                display: block
+        header, #footer-down
+            display: none
+
+    &.up
+        #content
+            background-color: rgba($green, 0.8)
+            #up-text
+                display: block
+        header, #footer-up
+            display: none
+
 #last-session
     display: none
 
-footer
+header, footer
     img
         opacity: 0.8
         cursor: pointer

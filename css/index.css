@@ -23,21 +23,6 @@
 input, button, textarea, :focus {
   outline: none; }
 
-body {
-  padding: 0;
-  font-family: "Raleway", sans-serif;
-  text-align: center;
-  background-color: #333333;
-  color: #333333; }
-  body.down #content {
-    background-color: #F2937B; }
-  body.down #up-text, body.down #footer-down {
-    display: none; }
-  body.up #content {
-    background-color: rgba(192, 247, 193, 0.8); }
-  body.up #down-text, body.up #footer-up {
-    display: none; }
-
 #content {
   margin-top: 2px;
   margin-bottom: 9px;
@@ -45,15 +30,49 @@ body {
   padding: 7%;
   border-radius: 10px;
   display: inline-block; }
+  #content div {
+    display: none;
+    transition: 0.2s ease-in-out; }
+
+body {
+  padding: 0;
+  font-family: "Raleway", sans-serif;
+  text-align: center;
+  background-color: #333333;
+  color: #333333; }
+  body.stats #content {
+    background-color: #BDFFF3; }
+    body.stats #content #stats-text {
+      display: block; }
+  body.stats footer {
+    display: none; }
+  body.config #content {
+    background-color: #BDFFF3; }
+    body.config #content #config-text {
+      display: block; }
+  body.config footer {
+    display: none; }
+  body.down #content {
+    background-color: #F2937B; }
+    body.down #content #down-text {
+      display: block; }
+  body.down header, body.down #footer-down {
+    display: none; }
+  body.up #content {
+    background-color: rgba(192, 247, 193, 0.8); }
+    body.up #content #up-text {
+      display: block; }
+  body.up header, body.up #footer-up {
+    display: none; }
 
 #last-session {
   display: none; }
 
-footer img {
+header img, footer img {
   opacity: 0.8;
   cursor: pointer;
   transition: 0.4s ease-out; }
-  footer img:hover {
+  header img:hover, footer img:hover {
     opacity: 1; }
 
 h1 {

@@ -84,12 +84,10 @@ const startTracking = () => {
 
 const stopTracking = () => {
     lastDown = +new Date()
-
     sessionsDb.insert({
         up: lastUp,
         down: lastDown
     })
-
     window.webContents.send('status', {
         'up': false,
         'lastUp': lastUp,
