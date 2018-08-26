@@ -6,10 +6,8 @@ const sessionsDb = new Datastore({
     autoload: true
 })
 
-
 const upIcon = app.getAppPath() + '/icons/up.png'
 const downIcon = app.getAppPath() + '/icons/down.png'
-
 
 let isUp = false
 
@@ -18,6 +16,10 @@ let window
 let lastUp
 let lastDown
 let sessionId = 0
+
+sessionsDb.count({}, (err, count) => {
+    sessionId = count
+})
 
 app.dock.hide()
 
@@ -91,7 +93,8 @@ const stopTracking = () => {
     window.webContents.send('status', {
         'up': false,
         'lastUp': lastUp,
-        'lastDown': lastDown
+        'lastDown': lastDown,
+        'sessionId': sessionId
     })
 
 }

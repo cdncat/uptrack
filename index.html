@@ -10,7 +10,7 @@
 
 <div id="content">
     <div id="up-text">
-        <h1>Session #<span id="session-id"></span></h1>
+        <h1>Session #<span class="session-id"></span></h1>
         <p id="session-time"></p>
     </div>
 
@@ -54,12 +54,14 @@
     })
 
     ipcRenderer.on('status', (ev, data) => {
+        [...document.getElementsByClassName('session-id')].forEach($el => {
+            $el.innerHTML = data.sessionId
+        })
+
         clearInterval(interval)
 
         if (data.up) {
             document.body.className = "up"
-            document.getElementById('session-id').innerHTML = data.sessionId
-
             updateTimer(data.lastUp)
             interval = setInterval(() => {
                 updateTimer(data.lastUp)
