@@ -44,7 +44,7 @@ body {
     background-color: #F5F5F5; }
     body.stats #content #stats-text {
       display: block; }
-  body.stats footer, body.stats #header-bars {
+  body.stats footer, body.stats #header-bars, body.stats #header-reset, body.stats #header-quit {
     display: none; }
   body.config #content {
     background-color: #BDFFF3; }

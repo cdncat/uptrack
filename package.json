@@ -4,7 +4,8 @@
   "description": "Keep track of your time usage",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^2.0.8"
+    "electron": "^2.0.8",
+    "electron-tooltip": "^1.1.5"
   },
   "scripts": {
     "start": "electron ."

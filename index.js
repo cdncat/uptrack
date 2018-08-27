@@ -3,6 +3,14 @@ const {$, $$, $click, $$click} = require('./lib/$')
 const {seconds2hours} = require('./lib/helpers')
 const {changeState, backState} = require('./routes')
 const {stats, processes} = require('./routes/stats')
+const tt = require('electron-tooltip')
+
+tt({
+    position: 'bottom',
+    style: {
+        backgroundColor: '#151515'
+    }
+})
 
 webFrame.setVisualZoomLevelLimits(1, 1)
 webFrame.setLayoutZoomLevelLimits(0, 0)
