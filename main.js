@@ -92,12 +92,12 @@ const createWindow = () => {
 }
 
 const blockWebsites = () => {
-    const hosts_text = "\n" + blockedWebsites.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`)
+    const hosts_text = "\n" + blockedWebsites.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`).join("\n")
 
     unblockWebsites()
 
     fs.copyFileSync('/etc/hosts', '/etc/hosts.old')
-    fs.appendFileSync('/etc/hosts', hosts_text).join("\n")
+    fs.appendFileSync('/etc/hosts', hosts_text)
 }
 
 const unblockWebsites = () => {
