@@ -76,6 +76,9 @@ body {
 #config-textarea {
   width: 100%; }
 
+#config-text {
+  text-align: left; }
+
 header, footer {
   text-align: left; }
   header span:first-child, footer span:first-child {
@@ -91,5 +94,8 @@ header, footer {
 
 h1 {
   font-family: "Lato", sans-serif; }
+
+textarea {
+  resize: none; }
 
 /*# sourceMappingURL=index.css.map */

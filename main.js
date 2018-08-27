@@ -1,12 +1,13 @@
-const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
+const {app, ipcMain, Tray, BrowserWindow} = require('electron')
 const {FILTERED_PROCESSES, DEFAULT_BLOCKED_WEBSITES, ICONS} = require('./lib/constants')
-const {sessionsDb, processDb} = require('./lib/data')
+const {sessionsDb, processDb, websitesDb} = require('./lib/data')
 
 const ps = require('current-processes')
 const fs = require('fs')
 
 let isUp = false
 
+let blockedWebsites
 let tray
 let window
 let lastUp
@@ -15,6 +16,28 @@ let sessionId = 0
 
 sessionsDb.count({}, (err, count) => {
     sessionId = count
+})
+
+const parseWebsites = (website) => {
+    return {
+        website,
+        deletable: true
+    }
+}
+websitesDb.count({}, (err, count) => {
+    if (count === 0) {
+        let insert = DEFAULT_BLOCKED_WEBSITES.map(parseWebsites)
+        insert.push({
+            website: null,
+            deletable: false
+        })
+        websitesDb.insert(insert)
+        blockedWebsites = DEFAULT_BLOCKED_WEBSITES
+    } else {
+        websitesDb.find({deletable: true}, (err, websites) => {
+            blockedWebsites = websites.map(x => x.website)
+        })
+    }
 })
 
 app.dock.hide()
@@ -68,14 +91,27 @@ const createWindow = () => {
     })
 }
 
-const startTracking = () => {
-    const hosts_text = "\n" + DEFAULT_BLOCKED_WEBSITES.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`)
+const blockWebsites = () => {
+    const hosts_text = "\n" + blockedWebsites.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`)
+
+    unblockWebsites()
 
     fs.copyFileSync('/etc/hosts', '/etc/hosts.old')
     fs.appendFileSync('/etc/hosts', hosts_text).join("\n")
+}
+
+const unblockWebsites = () => {
+    if (fs.existsSync('/etc/hosts.old')) {
+        fs.renameSync('/etc/hosts.old', '/etc/hosts')
+    }
+}
+
+const startTracking = () => {
+    blockWebsites()
 
     lastUp = +new Date()
     sessionId++
+
     window.webContents.send('status', {
         'up': true,
         'lastUp': lastUp,
@@ -85,13 +121,14 @@ const startTracking = () => {
 }
 
 const stopTracking = () => {
-    fs.renameSync('/etc/hosts.old', '/etc/hosts')
+    unblockWebsites()
 
     lastDown = +new Date()
     sessionsDb.insert({
         up: lastUp,
         down: lastDown
     })
+
     window.webContents.send('status', {
         'up': false,
         'lastUp': lastUp,
@@ -112,52 +149,63 @@ const toggleTrack = () => {
     isUp = !isUp
 }
 
-app.on('ready', () => {
-    createWindow()
-
-    tray = new Tray(ICONS.DOWN)
-    tray.on('click', toggleWindow)
-    tray.on('right-click', toggleWindow)
-})
-
-app.on('window-all-closed', () => {
-    stopTracking()
-    app.quit()
-})
-
-ipcMain.on('close-app', () => {
-    stopTracking()
-    app.quit()
-})
-
-ipcMain.on('toggle-track', toggleTrack)
-
-ipcMain.on('get-stats', () => {
-    sessionsDb.find({}).sort({'up': -1}).limit(10).exec((err, sessions) => {
-        window.webContents.send('stats', sessions.map(session => session['down'] - session['up']).reverse())
+ipcMain
+    .on('close-app', () => {
+        stopTracking()
+        app.quit()
     })
-})
+    .on('toggle-track', toggleTrack)
+    .on('get-stats', () => {
+        sessionsDb.find({}).sort({'up': -1}).limit(10).exec((err, sessions) => {
+            window.webContents.send('stats', sessions.map(session => session['down'] - session['up']).reverse())
+        })
+    })
+    .on('update-processes', () => {
+        ps.get((err, processes) => {
+            processes
+                .filter(x => !~FILTERED_PROCESSES.indexOf(x))
+                .sort((a, b) => b.cpu - a.cpu)
+                .slice(0, 2)
+                .map(x => x.name)
+                .forEach(process => {
+                    processDb.update({process}, {$inc: {active: 1}}, {upsert: true})
+                })
+        })
+    })
+    .on('get-processes', () => {
+        processDb.find({}).sort({'active': -1}).limit(5).exec((err, processes) => {
+            window.webContents.send('processes', processes)
+        })
+    })
+    .on('get-websites', () => {
+        window.webContents.send('websites', blockedWebsites)
+    })
+    .on('update-websites', (error, websites) => {
+        const toDelete = blockedWebsites.filter(x => !~websites.indexOf(x))
+        const toInsert = websites.filter(x => !~blockedWebsites.indexOf(x))
 
-ipcMain.on('update-processes', () => {
-    ps.get((err, processes) => {
-        processes
-            .filter(x => !~FILTERED_PROCESSES.indexOf(x))
-            .sort((a, b) => b.cpu - a.cpu)
-            .slice(0, 5)
-            .map(x => x.name)
-            .forEach(process => {
-                processDb.update({process}, {$inc: {active: 1}}, {upsert: true})
+        if (toDelete.length !== 0) {
+            toDelete.forEach(website => {
+                websitesDb.remove({website})
             })
+        }
+        if (toInsert.length !== 0) {
+            websitesDb.insert(toInsert.map(parseWebsites))
+        }
+
+        blockedWebsites = websites
     })
-})
 
-ipcMain.on('get-processes', () => {
-    processDb.find({}).sort({'active': -1}).limit(5).exec((err, processes) => {
-        window.webContents.send('processes', processes)
+app
+    .on('ready', () => {
+        createWindow()
+
+        tray = new Tray(ICONS.DOWN)
+        tray.on('click', toggleWindow)
+        tray.on('right-click', toggleWindow)
+
     })
-})
-
-
-ipcMain.on('get-websites', () => {
-    window.webContents.send('websites', DEFAULT_BLOCKED_WEBSITES)
-})
+    .on('window-all-closed', () => {
+        stopTracking()
+        app.quit()
+    })

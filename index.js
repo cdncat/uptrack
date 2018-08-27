@@ -25,6 +25,11 @@ $$click('go-back', backState)
 $click('header-bars', stats)
 $click('header-pie', processes)
 
+$('config-textarea').addEventListener('change', (e) => {
+    const websites = e.target.value.split("\n").map(x => x.trim()).filter(x => x.length !== 0)
+    ipcRenderer.send('update-websites', websites)
+})
+
 let interval = 0
 ipcRenderer.on('status', (ev, data) => {
     $$('session-id', $el => {
