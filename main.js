@@ -1,46 +1,9 @@
 const {app, Menu, ipcMain, Tray, BrowserWindow} = require('electron')
-const Datastore = require('nedb')
+const {FILTERED_PROCESSES, DEFAULT_BLOCKED_WEBSITES, ICONS} = require('./lib/constants')
+const {sessionsDb, processDb} = require('./lib/data')
+
 const ps = require('current-processes')
 const fs = require('fs')
-
-
-const filter_processes = [
-    'WindowServer',
-    'Google Chrome Helper',
-    'updater',
-    'launchd',
-    'hidd',
-    'mds_stores',
-    'Microsoft AutoUpdate',
-    'syncdefaultsd',
-    'Electron Helper'
-]
-
-const blocked_webistes = [
-    'reddit.com',
-    'youtube.com',
-    'soundcloud.com',
-    'facebook.com',
-    'twitter.com',
-    'quora.com',
-    '9gag.com',
-    'buzzfeed.com',
-    'instagram.com',
-    'vine.co'
-]
-
-const sessionsDb = new Datastore({
-    filename: app.getAppPath() + '/data/sessions.db',
-    autoload: true
-})
-
-const processDb = new Datastore({
-    filename: app.getAppPath() + '/data/process.db',
-    autoload: true
-})
-
-const upIcon = app.getAppPath() + '/icons/up.png'
-const downIcon = app.getAppPath() + '/icons/down.png'
 
 let isUp = false
 
@@ -73,7 +36,7 @@ const getWindowPosition = () => {
     const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
     const y = Math.round(trayBounds.y + trayBounds.height + 4)
 
-    return {x: x, y: y}
+    return {x, y}
 }
 
 const showWindow = () => {
@@ -105,8 +68,10 @@ const createWindow = () => {
 }
 
 const startTracking = () => {
+    const hosts_text = "\n" + DEFAULT_BLOCKED_WEBSITES.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`)
+
     fs.copyFileSync('/etc/hosts', '/etc/hosts.old')
-    fs.appendFileSync('/etc/hosts', "\n" + blocked_webistes.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`).join("\n"));
+    fs.appendFileSync('/etc/hosts', hosts_text).join("\n")
 
     lastUp = +new Date()
     sessionId++
@@ -138,10 +103,10 @@ const stopTracking = () => {
 const toggleTrack = () => {
     if (isUp) {
         stopTracking()
-        tray.setImage(downIcon)
+        tray.setImage(ICONS.DOWN)
     } else {
         startTracking()
-        tray.setImage(upIcon)
+        tray.setImage(ICONS.UP)
     }
     isUp = !isUp
 }
@@ -149,16 +114,18 @@ const toggleTrack = () => {
 app.on('ready', () => {
     createWindow()
 
-    tray = new Tray(downIcon)
+    tray = new Tray(ICONS.DOWN)
     tray.on('click', toggleWindow)
     tray.on('right-click', toggleWindow)
 })
 
 app.on('window-all-closed', () => {
+    stopTracking()
     app.quit()
 })
 
 ipcMain.on('close-app', () => {
+    stopTracking()
     app.quit()
 })
 
@@ -173,7 +140,7 @@ ipcMain.on('get-stats', () => {
 ipcMain.on('update-processes', () => {
     ps.get((err, processes) => {
         processes
-            .filter(x => !~filter_processes.indexOf(x))
+            .filter(x => !~FILTERED_PROCESSES.indexOf(x))
             .sort((a, b) => b.cpu - a.cpu)
             .slice(0, 5)
             .map(x => x.name)
@@ -191,5 +158,5 @@ ipcMain.on('get-processes', () => {
 
 
 ipcMain.on('get-websites', () => {
-    window.webContents.send('websites', blocked_webistes)
+    window.webContents.send('websites', DEFAULT_BLOCKED_WEBSITES)
 })
