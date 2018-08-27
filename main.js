@@ -60,6 +60,7 @@ const createWindow = () => {
         }
     })
     window.loadFile('index.html')
+    window.setVisibleOnAllWorkspaces(true)
 
     window.on('blur', () => {
         tray.setHighlightMode('never')
