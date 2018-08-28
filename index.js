@@ -33,6 +33,19 @@ $$click('go-back', backState)
 $click('header-bars', stats)
 $click('header-pie', processes)
 
+
+$click('header-reset', () => {
+    if (confirm("Reset will erase all previously stored data.\nAre you sure you want to proceed?")) {
+        ipcRenderer.send('reset')
+    }
+})
+
+$click('header-quit', () => {
+    if (confirm("Are you sure you want to quit Uptrack?")) {
+        ipcRenderer.send('close-app')
+    }
+})
+
 $('config-textarea').addEventListener('change', (e) => {
     const websites = e.target.value.split("\n").map(x => x.trim()).filter(x => x.length !== 0)
     ipcRenderer.send('update-websites', websites)

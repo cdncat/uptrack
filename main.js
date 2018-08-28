@@ -150,20 +150,20 @@ const toggleTrack = () => {
 }
 
 ipcMain
-    .on('close-app', () => {
-        stopTracking()
-        app.quit()
-    })
     .on('toggle-track', toggleTrack)
     .on('get-stats', () => {
         sessionsDb.find({}).sort({'up': -1}).limit(10).exec((err, sessions) => {
-            window.webContents.send('stats', sessions.map(session => session['down'] - session['up']).reverse())
+            window.webContents.send('stats',
+                sessions
+                    .filter(x => x.up && x.down)
+                    .map(x => x.down - x.up)
+                    .reverse())
         })
     })
     .on('update-processes', () => {
         ps.get((err, processes) => {
             processes
-                .filter(x => !~FILTERED_PROCESSES.indexOf(x))
+                .filter(x => !~FILTERED_PROCESSES.indexOf(x.name))
                 .sort((a, b) => b.cpu - a.cpu)
                 .slice(0, 2)
                 .map(x => x.name)
@@ -194,6 +194,15 @@ ipcMain
         }
 
         blockedWebsites = websites
+    })
+    .on('reset', () => {
+        stopTracking()
+        sessionsDb.remove({}, {multi: true})
+        processDb.remove({}, {multi: true})
+    })
+    .on('close-app', () => {
+        stopTracking()
+        app.quit()
     })
 
 app
