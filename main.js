@@ -73,7 +73,7 @@ const showWindow = () => {
 const createWindow = () => {
     window = new BrowserWindow({
         width: 256,
-        height: 215,
+        height: 210,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -153,11 +153,8 @@ ipcMain
     .on('toggle-track', toggleTrack)
     .on('get-stats', () => {
         sessionsDb.find({}).sort({'up': -1}).limit(10).exec((err, sessions) => {
-            window.webContents.send('stats',
-                sessions
-                    .filter(x => x.up && x.down)
-                    .map(x => x.down - x.up)
-                    .reverse())
+            const data = sessions.filter(x => x.up && x.down).map(x => x.down - x.up).reverse()
+            window.webContents.send('stats', data, sessionId + 1)
         })
     })
     .on('update-processes', () => {

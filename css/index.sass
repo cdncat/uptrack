@@ -1,7 +1,7 @@
 @import 'fonts'
 
 $white: #F5F5F5
-$black: #333333
+$black: #3c3c3c
 $green: #C0F7C1
 $pink: #F7BAD2
 $teal: #BDFFF3
@@ -19,35 +19,61 @@ input, button, textarea, :focus
     outline: none
 
 #content
+    transition: background-color .2s ease-out
     margin-top: 2px
-    margin-bottom: 9px
+    margin-bottom: 5px
+    height: 110px
     width: 85%
     padding: 7%
-    border-radius: 10px
+    border-radius: 5px
     display: inline-block
 
     div
         display: none
         transition: .2s ease-in-out
 
+header, footer
+    text-align: left
+    height: 50px
+    margin-top: -5px
+
+    span
+        margin-top: 7px
+        &:first-child
+            float: left
+        &:nth-child(2)
+            float: right
+
+    img
+        opacity: 0.8
+        cursor: pointer
+        transition: .4s ease-out
+
+        &:hover
+            opacity: 1
+
 body
     padding: 0
     font-family: 'Raleway', sans-serif
     text-align: center
-    background-color: $black
+    background: $black
     color: $black
 
     &.stats
         #content
+            cursor: zoom-in
             background-color: $white
             #stats-text
                 display: block
+            canvas
+                cursor: zoom-in
         footer, #header-bars, #header-reset, #header-quit
             display: none
 
     &.config
         #content
             background-color: $teal
+            font-size: 0.9em
             #config-text
                 display: block
         footer, #header-down, #header-pie, #header-bars
@@ -56,7 +82,7 @@ body
 
     &.down
         #content
-            background-color: $red
+            background-color: rgba($red, 0.85)
             #down-text
                 display: block
         header, #footer-down
@@ -64,7 +90,7 @@ body
 
     &.up
         #content
-            background-color: rgba($green, 0.8)
+            background-color: rgba($green, 0.85)
             #up-text
                 display: block
         header, #footer-up
@@ -83,25 +109,11 @@ body
 #config-text
     text-align: left
 
-header, footer
-    text-align: left
-
-    span
-        &:first-child
-            float: left
-        &:nth-child(2)
-            float: right
-
-    img
-        opacity: 0.8
-        cursor: pointer
-        transition: .4s ease-out
-
-        &:hover
-            opacity: 1
-
 h1
     font-family: 'Lato', sans-serif
 
 textarea
+    margin-top: 1px
     resize: none
+    border: 1px solid $black
+    background: $white

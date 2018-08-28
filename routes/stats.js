@@ -4,50 +4,56 @@ const {$} = require('../lib/$')
 
 const canvas = $('stats-canvas')
 const ctx = canvas.getContext('2d')
-ctx.font = "22px Lucida Console Bold"
 
 const clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 const stats = (cb = () => null) => {
-    ipcRenderer.once('stats', (ev, data) => {
+    ipcRenderer.once('stats', (ev, data, sessionsCount) => {
         clearCanvas()
 
         if (data.length === 0) {
-            ctx.fillStyle = 'rgb(85,85,85)'
+            ctx.fillStyle = '#3c3c3c'
             const txt = 'No sessions recorded'
             const x = (canvas.width - ctx.measureText(txt).width) / 2
             ctx.fillText(txt, x, canvas.height / 2 + 11)
         } else {
+            const height = 0.9 * canvas.height
             const max = Math.max(...data)
-            const heights = data.map(x => 0.85 * canvas.height * (x / max))
+            const heights = data.map(x => 0.85 * height * (x / max))
             const widths = (canvas.width / data.length)
+            const firstSession = Math.max(sessionsCount - 10, 1)
 
-            ctx.strokeStyle = 'rgb(210,210,210)'
-            for (let i = 0; i < 5; ++i) {
-                let y = 0.3 * canvas.height + i * 0.17 * canvas.height
+            ctx.strokeStyle = '#c2c2c2'
+            ctx.setLineDash([])
+            for (let i = 0; i < 4; ++i) {
+                let y = 0.3 * height + i * 0.17 * height
                 ctx.beginPath()
-                ctx.setLineDash([])
                 ctx.moveTo(0, y)
                 ctx.lineTo(canvas.width, y)
                 ctx.stroke()
             }
 
-            ctx.fillStyle = 'rgb(47,102,144)'
+            ctx.font = "12px Lucida Console"
             heights.forEach((bar, i) => {
-                ctx.fillRect(widths * i, canvas.height - bar, (widths - 2), bar)
+                ctx.fillStyle = '#0277BD'
+                ctx.fillRect(widths * i, height - bar, (widths - 2), bar)
+                ctx.fillStyle = '#3c3c3c'
+                let txt = `#${firstSession + i}`
+                ctx.fillText(txt, widths * i + (widths - ctx.measureText(txt).width) / 2, canvas.height)
             })
 
-            ctx.strokeStyle = 'rgb(47,102,144)'
+            ctx.strokeStyle = '#3c3c3c'
             ctx.beginPath()
             ctx.setLineDash([5, 10])
-            ctx.moveTo(0, 0.15 * canvas.height)
-            ctx.lineTo(canvas.width, 0.15 * canvas.height)
+            ctx.moveTo(0, 0.15 * height)
+            ctx.lineTo(canvas.width, 0.15 * height)
             ctx.stroke()
 
+            ctx.font = "22px Lucida Console Bold"
             ctx.fillStyle = 'rgb(85,85,85)'
-            ctx.fillText(seconds2hours(~~(max / 1000)), 0, 0.11 * canvas.height)
+            ctx.fillText(seconds2hours(~~(max / 1000)), 0, 0.11 * height)
         }
 
         $('header-bars').style.display = "none"
@@ -62,25 +68,25 @@ const processes = (cb = () => null) => {
         clearCanvas()
 
         if (data.length === 0) {
-            ctx.fillStyle = 'rgb(85,85,85)'
+            ctx.fillStyle = '#3c3c3c'
             const txt = 'No process data recorded'
             const x = (canvas.width - ctx.measureText(txt).width) / 2
             ctx.fillText(txt, x, canvas.height / 2 + 11)
         } else {
             const total = data.map(x => x.active).reduce((a, b) => a + b, 0)
             let colors = [
-                "#B7D2FF",
-                '#ECC1EC',
-                '#FFF1BF',
-                '#CDFFFD',
-                '#C2FFCD'
+                "#C62828",
+                '#4527A0',
+                '#F9A825',
+                '#00695C',
+                '#EF6C00'
             ]
             let sum = 0
             const draw = (process, i) => {
                 ctx.save()
-                const centerX = Math.floor(canvas.width / 4)
+                const centerX = Math.floor(canvas.width / 4.5)
                 const centerY = Math.floor(canvas.height / 2)
-                const radius = Math.floor(canvas.height / 2)
+                const radius = Math.floor(canvas.height / 2.3)
 
                 const startingAngle = sum
                 const arcSize = (process.active / total) * 2 * Math.PI
@@ -93,12 +99,12 @@ const processes = (cb = () => null) => {
                 ctx.fillStyle = colors.pop()
                 ctx.fill()
 
-                let x = canvas.width / 5 * 3
+                let x = canvas.width / 7 * 4
                 let y = canvas.height * 0.1 + 0.17 * canvas.height * i
                 ctx.fillRect(x, y, 15, 15)
 
                 ctx.font = "16px Lucida Console bold"
-                ctx.fillStyle = 'rgb(85,85,85)'
+                ctx.fillStyle = '#3c3c3c'
                 ctx.fillText(process.process, x + 21, y + 13)
 
                 ctx.restore()

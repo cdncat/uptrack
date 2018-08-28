@@ -24,43 +24,66 @@ input, button, textarea, :focus {
   outline: none; }
 
 #content {
+  transition: background-color 0.2s ease-out;
   margin-top: 2px;
-  margin-bottom: 9px;
+  margin-bottom: 5px;
+  height: 110px;
   width: 85%;
   padding: 7%;
-  border-radius: 10px;
+  border-radius: 5px;
   display: inline-block; }
   #content div {
     display: none;
     transition: 0.2s ease-in-out; }
 
+header, footer {
+  text-align: left;
+  height: 50px;
+  margin-top: -5px; }
+  header span, footer span {
+    margin-top: 7px; }
+    header span:first-child, footer span:first-child {
+      float: left; }
+    header span:nth-child(2), footer span:nth-child(2) {
+      float: right; }
+  header img, footer img {
+    opacity: 0.8;
+    cursor: pointer;
+    transition: 0.4s ease-out; }
+    header img:hover, footer img:hover {
+      opacity: 1; }
+
 body {
   padding: 0;
   font-family: "Raleway", sans-serif;
   text-align: center;
-  background-color: #333333;
-  color: #333333; }
+  background: #3c3c3c;
+  color: #3c3c3c; }
   body.stats #content {
+    cursor: zoom-in;
     background-color: #F5F5F5; }
     body.stats #content #stats-text {
       display: block; }
+    body.stats #content canvas {
+      cursor: zoom-in; }
   body.stats footer, body.stats #header-bars, body.stats #header-reset, body.stats #header-quit {
     display: none; }
   body.config #content {
-    background-color: #BDFFF3; }
+    background-color: #BDFFF3;
+    font-size: 0.9em; }
     body.config #content #config-text {
       display: block; }
   body.config footer, body.config #header-down, body.config #header-pie, body.config #header-bars {
     display: none;
     visibility: hidden; }
   body.down #content {
-    background-color: #F2937B; }
+    background-color: rgba(242, 147, 123, 0.85); }
     body.down #content #down-text {
       display: block; }
   body.down header, body.down #footer-down {
     display: none; }
   body.up #content {
-    background-color: rgba(192, 247, 193, 0.8); }
+    background-color: rgba(192, 247, 193, 0.85); }
     body.up #content #up-text {
       display: block; }
   body.up header, body.up #footer-up {
@@ -79,23 +102,13 @@ body {
 #config-text {
   text-align: left; }
 
-header, footer {
-  text-align: left; }
-  header span:first-child, footer span:first-child {
-    float: left; }
-  header span:nth-child(2), footer span:nth-child(2) {
-    float: right; }
-  header img, footer img {
-    opacity: 0.8;
-    cursor: pointer;
-    transition: 0.4s ease-out; }
-    header img:hover, footer img:hover {
-      opacity: 1; }
-
 h1 {
   font-family: "Lato", sans-serif; }
 
 textarea {
-  resize: none; }
+  margin-top: 1px;
+  resize: none;
+  border: 1px solid #3c3c3c;
+  background: #F5F5F5; }
 
 /*# sourceMappingURL=index.css.map */
