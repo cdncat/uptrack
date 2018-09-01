@@ -1,9 +1,8 @@
-const {app, ipcMain, Tray, BrowserWindow} = require('electron')
+const {app, ipcMain, Tray, BrowserWindow, dialog} = require('electron')
 const {FILTERED_PROCESSES, DEFAULT_BLOCKED_WEBSITES, ICONS} = require('./lib/constants')
 const {sessionsDb, processDb, websitesDb} = require('./lib/data')
-
+const sudo = require('sudo-prompt')
 const ps = require('current-processes')
-const fs = require('fs')
 
 let isUp = false
 
@@ -91,62 +90,68 @@ const createWindow = () => {
     })
 }
 
-const blockWebsites = () => {
-    const hosts_text = "\n" + blockedWebsites.map(x => `127.0.0.1\t${x}\n127.0.0.1\twww.${x}`).join("\n")
-
-    unblockWebsites()
-
-    fs.copyFileSync('/etc/hosts', '/etc/hosts.old')
-    fs.appendFileSync('/etc/hosts', hosts_text)
-}
-
-const unblockWebsites = () => {
-    if (fs.existsSync('/etc/hosts.old')) {
-        fs.renameSync('/etc/hosts.old', '/etc/hosts')
-    }
-}
-
 const startTracking = () => {
-    blockWebsites()
+    const command = blockedWebsites.map(x => `echo '127.0.0.1\t${x}' >> /etc/hosts; echo '127.0.0.1\twww.${x}' >> /etc/hosts`).join("; ")
+    sudo.exec(
+        `[ -f /etc/hosts.old ] && mv /etc/hosts.old /etc/hosts; cp /etc/hosts /etc/hosts.old; ${command}`,
+        {'name': 'Uptrack'},
+        (err) => {
+            if (err) {
+                dialog.showErrorBox('Authentication Error', 'Please try again.')
+                return
+            }
 
-    lastUp = +new Date()
-    sessionId++
+            lastUp = +new Date()
+            sessionId++
 
-    window.webContents.send('status', {
-        'up': true,
-        'lastUp': lastUp,
-        'lastDown': lastDown,
-        'sessionId': sessionId
-    })
+            window.webContents.send('status', {
+                'up': true,
+                'lastUp': lastUp,
+                'lastDown': lastDown,
+                'sessionId': sessionId
+            })
+
+            tray.setImage(ICONS.UP)
+            isUp = true
+        }
+    )
 }
 
 const stopTracking = () => {
-    unblockWebsites()
+    sudo.exec(
+        '[ -f /etc/hosts.old ] && mv /etc/hosts.old /etc/hosts',
+        {'name': 'Uptrack'},
+        (err) => {
+            if (err) {
+                dialog.showErrorBox('Authentication Error', 'Please try again.')
+                return
+            }
 
-    lastDown = +new Date()
-    sessionsDb.insert({
-        up: lastUp,
-        down: lastDown
-    })
+            lastDown = +new Date()
+            sessionsDb.insert({
+                up: lastUp,
+                down: lastDown
+            })
 
-    window.webContents.send('status', {
-        'up': false,
-        'lastUp': lastUp,
-        'lastDown': lastDown,
-        'sessionId': sessionId
-    })
+            window.webContents.send('status', {
+                'up': false,
+                'lastUp': lastUp,
+                'lastDown': lastDown,
+                'sessionId': sessionId
+            })
 
+            tray.setImage(ICONS.DOWN)
+            isUp = false
+        }
+    )
 }
 
 const toggleTrack = () => {
     if (isUp) {
         stopTracking()
-        tray.setImage(ICONS.DOWN)
     } else {
         startTracking()
-        tray.setImage(ICONS.UP)
     }
-    isUp = !isUp
 }
 
 ipcMain
