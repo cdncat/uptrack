@@ -92,7 +92,7 @@ const createWindow = () => {
 }
 
 const blockWebsites = () => {
-    const hosts_text = "\n" + blockedWebsites.map(x => `0.0.0.0\t${x}\n0.0.0.0\twww.${x}`).join("\n")
+    const hosts_text = "\n" + blockedWebsites.map(x => `127.0.0.1\t${x}\n127.0.0.1\twww.${x}`).join("\n")
 
     unblockWebsites()
 
