@@ -29,10 +29,8 @@ $$click('go-to', (e) => {
 })
 
 $$click('go-back', backState)
-
 $click('header-bars', stats)
 $click('header-pie', processes)
-
 
 $click('header-reset', () => {
     if (confirm("Reset will erase all previously stored data.\nAre you sure you want to proceed?")) {

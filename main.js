@@ -1,10 +1,10 @@
 const {app, ipcMain, Tray, BrowserWindow, dialog} = require('electron')
 const {FILTERED_PROCESSES, DEFAULT_BLOCKED_WEBSITES, ICONS} = require('./lib/constants')
 const {sessionsDb, processDb, websitesDb} = require('./lib/data')
+const {seconds2hours} = require('./lib/helpers')
 const sudo = require('sudo-prompt')
 const ps = require('current-processes')
 const fs = require('fs');
-const {seconds2hours} = require('./lib/helpers')
 
 let isUp = false
 
@@ -227,8 +227,8 @@ ipcMain
             const arrayToCsv = (docs) => {
                 return "Session start:,Session end:,Session length:\n" + 
                 docs.filter((row) => row.up && row.down)
-                    .map(line => 
-                        [formatDate(line.up), formatDate(line.down), seconds2hours((line.down-line.up)/1000)].join(","))
+                    .map(row =>
+                        [formatDate(row.up), formatDate(row.down), seconds2hours((row.down-row.up)/1000)].join(","))
                     .join("\n")
             }
 
