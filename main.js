@@ -3,6 +3,7 @@ const {FILTERED_PROCESSES, DEFAULT_BLOCKED_WEBSITES, ICONS} = require('./lib/con
 const {sessionsDb, processDb, websitesDb} = require('./lib/data')
 const sudo = require('sudo-prompt')
 const ps = require('current-processes')
+const fs = require('fs');
 
 let isUp = false
 
@@ -154,6 +155,17 @@ const toggleTrack = () => {
     }
 }
 
+const arrayToCsv = (docs) => {
+    return docs.map(line => 
+        [Date(line.up), Date(line.down), minuteSecondFormat(line.down-line.up)].join(",")).join("\n")
+}
+
+function minuteSecondFormat(ms) {
+    var minutes = Math.floor(ms / 60000);
+    var seconds = ((ms % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
+
 ipcMain
     .on('toggle-track', toggleTrack)
     .on('get-stats', () => {
@@ -205,6 +217,30 @@ ipcMain
     .on('close-app', () => {
         stopTracking()
         app.quit()
+    })
+    .on('download-csv', () => {
+        sessionsDb.find({}, (err, docs) => {
+            if (err) {
+                dialog.showErrorBox("Error using find() for NeDB", err)
+                throw err
+            }
+
+            let content = arrayToCsv(docs)
+
+            dialog.showSaveDialog((filename) => {
+                if(filename === undefined) {
+                    dialog.showErrorBox(window, "filename was undefined")
+                    return
+                }
+                fs.writeFile(filename, content, (err) => {
+                    if(err) {
+                        dialog.showErrorBox(window, "an error occured with creation of filename:" + filename)
+                        return
+                    }
+                    dialog.showMessageBox(window, {title: "success", message: "file successfully created: " + filename})
+                })
+            })
+        })
     })
 
 app

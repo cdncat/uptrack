@@ -46,6 +46,10 @@ $click('header-quit', () => {
     }
 })
 
+$click('header-down', () => {
+    ipcRenderer.send('download-csv')
+})
+
 $('config-textarea').addEventListener('change', (e) => {
     const websites = e.target.value.split("\n").map(x => x.trim()).filter(x => x.length !== 0)
     ipcRenderer.send('update-websites', websites)
