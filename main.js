@@ -4,6 +4,7 @@ const {sessionsDb, processDb, websitesDb} = require('./lib/data')
 const sudo = require('sudo-prompt')
 const ps = require('current-processes')
 const fs = require('fs');
+const {seconds2hours} = require('./lib/helpers')
 
 let isUp = false
 
@@ -155,17 +156,6 @@ const toggleTrack = () => {
     }
 }
 
-const arrayToCsv = (docs) => {
-    return docs.map(line => 
-        [Date(line.up), Date(line.down), minuteSecondFormat(line.down-line.up)].join(",")).join("\n")
-}
-
-function minuteSecondFormat(ms) {
-    var minutes = Math.floor(ms / 60000);
-    var seconds = ((ms % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-  }
-
 ipcMain
     .on('toggle-track', toggleTrack)
     .on('get-stats', () => {
@@ -221,23 +211,39 @@ ipcMain
     .on('download-csv', () => {
         sessionsDb.find({}, (err, docs) => {
             if (err) {
-                dialog.showErrorBox("Error using find() for NeDB", err)
+                dialog.showErrorBox("Error", "Error using find() for NeDB")
                 throw err
             }
 
-            let content = arrayToCsv(docs)
+            const formatDate = (msUTC) => {
+                let d = new Date(msUTC)
+                return d.getFullYear() + "-" +
+                ("0" + d.getMonth()).slice(-2) + "-" +
+                ("0" + d.getDate()).slice(-2) + "T" +
+                ("0" + d.getHours()).slice(-2) + ":" +
+                ("0" + d.getMinutes()).slice(-2)
+            }
 
+            const arrayToCsv = (docs) => {
+                return "Session start:,Session end:,Session length:\n" + 
+                docs.filter((row) => row.up && row.down)
+                    .map(line => 
+                        [formatDate(line.up), formatDate(line.down), seconds2hours((line.down-line.up)/1000)].join(","))
+                    .join("\n")
+            }
+
+            dialog.showMessageBox(window, {message: "Reminder: you must add .csv to filename"})
+            let content = arrayToCsv(docs)
             dialog.showSaveDialog((filename) => {
                 if(filename === undefined) {
-                    dialog.showErrorBox(window, "filename was undefined")
+                    dialog.showErrorBox("Error", "Filename was undefined")
                     return
                 }
                 fs.writeFile(filename, content, (err) => {
                     if(err) {
-                        dialog.showErrorBox(window, "an error occured with creation of filename:" + filename)
-                        return
+                        dialog.showErrorBox("Error", "Writing to file was unsuccessful")
                     }
-                    dialog.showMessageBox(window, {title: "success", message: "file successfully created: " + filename})
+                    dialog.showMessageBox(window, {title: "Success", message: "File successfully created: " + filename})
                 })
             })
         })
